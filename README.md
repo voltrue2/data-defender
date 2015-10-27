@@ -103,7 +103,7 @@ An optional value to define the minimum value for the property.
 
 Locks the definition of schema. If you call `.define()` after invoking this function, it will throw an excetion.
 
-#### .load(*data [object])
+#### .load(data [*object])
 
 It loads the data and returns a data object.
 
