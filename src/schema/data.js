@@ -1,15 +1,23 @@
 'use strict';
 
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
 var ERROR = require('../../lib/error');
 
 function Data(struct) {
+	EventEmitter.call(this);
 	this._struct = struct;
 	this._props = {};
 }
 
+util.inherits(Data, EventEmitter);
+
 Data.prototype.load = function (data) {
-	for (var name in data) {
-		this.update(name, data[name]);
+	if (data) {
+		for (var name in data) {
+			this.update(name, data[name]);
+		}
+		this.emit('load', data);
 	}
 };
 
@@ -22,6 +30,8 @@ Data.prototype.update = function (name, value) {
 	}
 
 	this._props[name] = value;
+	this.emit('update', name, value);
+	this.emit('update.' + name, value);
 };
 
 Data.prototype.get = function (name) {
