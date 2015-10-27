@@ -168,3 +168,16 @@ Updates the property value of the `name` given with the value passed to the func
 
 Returns the current value of the given property.
 
+##### .toJSON()
+
+Returns all the property along with their values as an object.
+
+Useful when you need to store the data to database etc.
+
+**Example**:
+
+```javascript
+var dataToSave = myData.toJSON();
+saveToDatabase(dataToSave, callback);
+```
+
