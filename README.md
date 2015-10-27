@@ -4,7 +4,7 @@ A node.js module to let you define and enforce data constraints.
 
 ## API
 
-### .create(schemaName <string>)
+### .create(schemaName [string])
 
 Returns a schema object to allow you to define constraints on each data property.
 
@@ -27,7 +27,7 @@ example.define('name', {
 });
 ```
 
-### .get(schemaName <string>)
+### .get(schemaName [string])
 
 Returns an already defined schema object.
 
@@ -45,7 +45,7 @@ It is an instance of Struct class.
 
 This object allows you to define constraints on each data property.
 
-#### .define(PropertyName <string>, constraints <object>)
+#### .define(PropertyName [string], constraints [object])
 
 If there is an error, it will throw an exception.
 
@@ -53,10 +53,10 @@ If there is an error, it will throw an exception.
 
 ```
 {
-	type: <enum>,
-	*default: <default value>,
-	*max: <number>,
-	*min: <number> 
+	type: [enum],
+	*default: [default value],
+	*max: [number],
+	*min: [number] 
 }
 ```
 
@@ -103,7 +103,7 @@ An optional value to define the minimum value for the property.
 
 Locks the definition of schema. If you call `.define()` after invoking this function, it will throw an excetion.
 
-#### .load(*data <object>)
+#### .load(*data [object])
 
 It loads the data and returns a data object.
 
@@ -158,11 +158,11 @@ dbRecord.update('name', 'New Name');
 dbRecord.update('age', dbRecord.get('age') + 4);
 ```
 
-##### .update(propertyName <string>, value <mix>)
+##### .update(propertyName [string], value [mix])
 
 Updates the property value of the `name` given with the value passed to the function.
 
-#### .get(propertyName <string>)
+#### .get(propertyName [string])
 
 Returns the current value of the given property.
 
