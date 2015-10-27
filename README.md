@@ -54,13 +54,13 @@ If there is an error, it will throw an exception.
 ```
 {
 	type: [enum],
-	*default: [default value],
-	*max: [number],
-	*min: [number] 
+	default: [*default value],
+	max: [*number],
+	min: [*number] 
 }
 ```
 
-##### type
+##### type [enum]
 
 Defines the data type of the property.
 
@@ -87,15 +87,15 @@ defender.DATATYPE.UNIQUE;
 
 **NOTE**: `UNIQUE` data type's value cannot be updated.
 
-##### *default
+##### default [*default value]
 
 An optional value to define a default value for the property.
 
-##### *max
+##### max [*number]
 
 An optional value to define the maximum value for the property.
 
-##### *min
+##### min [*number]
 
 An optional value to define the minimum value for the property.
 
@@ -108,6 +108,8 @@ Locks the definition of schema. If you call `.define()` after invoking this func
 It loads the data and returns a data object.
 
 If the given values do not meet the constraints defined by the schema, it will throw an exception.
+
+**NOTE**: If you define a property that is `UNIQUE` and pass nothing to `.load()`, it will auto-generate a unique ID as a string.
 
 **Example**:
 
@@ -162,7 +164,7 @@ dbRecord.update('age', dbRecord.get('age') + 4);
 
 Updates the property value of the `name` given with the value passed to the function.
 
-#### .get(propertyName [string])
+##### .get(propertyName [string])
 
 Returns the current value of the given property.
 
