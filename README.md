@@ -93,9 +93,15 @@ defender.DATATYPE.DATE;
 
 // boolean type
 defender.DATATYPE.BOOL;
+
+// modified time type
+defender.DATATYPE.MOD;
+
 ```
 
-**NOTE**: `UNIQUE` data type's value cannot be updated.
+**NOTE**: `UNIQUE` and `MOD` data type's value cannot be updated.
+
+**NOTE 2**: `MOD` data type property will be updated automatically by updating other properties.
 
 ##### default [*default value]
 

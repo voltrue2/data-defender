@@ -15,23 +15,36 @@ util.inherits(Data, EventEmitter);
 Data.prototype.load = function (data) {
 	if (data) {
 		for (var name in data) {
-			this.update(name, data[name]);
+			this._update(name, data[name]);
 		}
 		this.emit('load', data);
 	}
 };
 
 Data.prototype.update = function (name, value) {
+	this._update(name, value);
+	var list = this._struct._getModtimeList();
+	for (var i = 0, len = list.length; i < len; i++) {
+		this._props[list[i]] = Date.now();
+	}
+	this.emit('update', name, value);
+	this.emit('update.' + name, value);
+};
+
+Data.prototype._update = function (name, value) {
 	var data = this._struct._update(name, value);
 	var hasProp = this._props.hasOwnProperty(name);
 
-	if (data.unique && hasProp && this._props[name] !== value) {
-		throw new Error(ERROR.VAL_CHANGE_NOT_ALLOWED);
+	if (data.noChange && hasProp && this._props[name] !== value) {
+		throw new Error(ERROR.VAL_CHANGE_NOT_ALLOWED(name));
+	}
+
+	// auto-convert
+	if (value instanceof Date) {
+		value = value.getTime();
 	}
 
 	this._props[name] = value;
-	this.emit('update', name, value);
-	this.emit('update.' + name, value);
 };
 
 Data.prototype.get = function (name) {

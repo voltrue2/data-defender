@@ -547,4 +547,101 @@ describe('data-defender', function () {
 		assert.equal(bData.get('bool'), true);
 	});
 
+	var testTwo;
+	var testTwoMap;
+
+	it('can define a schema and another schema as a property', function () {
+		testTwo = defender.create('testTwo');
+		testTwo.define('id', {
+			type: defender.DATATYPE.UNIQUE
+		});
+		testTwo.define('text', {
+			type: defender.DATATYPE.STR,
+			max: 10,
+			min: 0
+		});
+		testTwo.define('map', {
+			type: defender.DATATYPE.OBJ,
+			min: 2
+		});
+		testTwo.define('modtime', {
+			type: defender.DATATYPE.MOD,
+			default: Date.now
+		});
+		var now = Date.now();
+		var d = testTwo.load();
+		assert(d.get('id'));
+		assert.equal(now, d.get('modtime').getTime());
+		testTwoMap = defender.create('testTwoMap');
+		testTwoMap.define('name', {
+			type: defender.DATATYPE.STR,
+			max: 4,
+			min: 1
+		});
+		testTwoMap.define('list', {
+			type: defender.DATATYPE.ARR,
+			max: 4,
+			min: 1
+		});
+	});
+
+	it('can update a propaty that w/ schema constraints', function () {
+		var d = testTwo.load();
+		var map = testTwoMap.load();
+		var data = {
+			name: 'ABCD',
+			list: [1, 2]
+		};
+		map.update('name', data.name);
+		map.update('list', data.list);
+		d.update('map', map.toJSON());
+		var json = d.toJSON();
+		for (var i in data) {
+			assert.equal(JSON.stringify(data[i]), JSON.stringify(json.map[i]));
+		}
+	});
+
+	it('can load an existing data and keep the mod type data as loaded', function () {
+		var then = new Date('2000-10-28 00:00:00').getTime();
+		var data = {
+			text: 'EFCG',
+			map: { one: 1, two: 2 },
+			modtime: new Date(then)
+		};
+		var d = testTwo.load(data);
+		assert.equal(then, d.get('modtime').getTime());
+	});
+
+	it('cannot update mod type property', function () {
+		var then = new Date('2000-10-28 00:00:00').getTime();
+		var data = {
+			text: 'EFCG',
+			map: { one: 1, two: 2 },
+			modtime: new Date(then)
+		};
+		var d = testTwo.load(data);
+		var error = true;
+		assert.equal(then, d.get('modtime').getTime());
+		try {
+			d.update('modtime', Date.now());
+		} catch (e) {
+			error = false;
+		}
+		assert.equal(then, d.get('modtime').getTime());
+	});
+
+	it('can update mod type property automatically by updating other properties', function () {
+		var then = new Date('2000-10-28 00:00:00').getTime();
+		var data = {
+			text: 'EFCG',
+			map: { one: 1, two: 2 },
+			modtime: new Date(then)
+		};
+		var d = testTwo.load(data);
+		var error = true;
+		assert.equal(then, d.get('modtime').getTime());
+		d.update('text', 'HIJK');
+		assert.notEqual(then, d.get('modtime').getTime());
+	});
+
 });

@@ -11,6 +11,7 @@ function Struct() {
 	EventEmitter.call(this);
 	this._constraints = {};
 	this._uniqueList = [];
+	this._modtimeList = [];
 	this._lock = false;
 }
 
@@ -84,6 +85,9 @@ Struct.prototype.define = function (name, valMap) {
 	if (valMap.type === DATATYPE.UNIQUE) {
 		this._uniqueList.push(name);
 	}
+	if (valMap.type === DATATYPE.MOD) {
+		this._modtimeList.push(name);
+	}
 };
 
 Struct.prototype.lockSchema = function () {
@@ -122,7 +126,7 @@ Struct.prototype._typecast = function (name, value) {
 		throw new Error(ERROR.PROP_NOT_DEF(name));
 	}
 	var constraint = this._constraints[name];
-	if (constraint.type === DATATYPE.DATE) {
+	if (constraint.type === DATATYPE.DATE || constraint.type === DATATYPE.MOD) {
 		return new Date(value);
 	}
 	return value;
@@ -136,12 +140,19 @@ Struct.prototype._update = function (name, value) {
 		throw new Error(ERROR.INVAL_VAL(value));
 	}
 	if (this._constraints[name].type === DATATYPE.UNIQUE) {
-		return { name: name, value: value, unique: true };
+		return { name: name, value: value, noChange: true };
+	}
+	if (this._constraints[name].type === DATATYPE.MOD) {
+		return { name: name, value: value, noChange: true };
 	}
 	if (this._constraints[name].type === DATATYPE.DATE && value instanceof Date) {
 		value = value.getTime();
 	}
 	return { name: name, value: value };
+};
+
+Struct.prototype._getModtimeList = function () {
+	return this._modtimeList;
 };
 
 Struct.prototype._toJSON = function (props) {
@@ -207,6 +218,7 @@ function isValid(constraints, value) {
 		case DATATYPE.UNIQUE:
 			return true;
 		case DATATYPE.DATE:
+		case DATATYPE.MOD:
 			if (!value instanceof Date) {
 				return false;
 			}
