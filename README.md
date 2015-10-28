@@ -87,13 +87,13 @@ defender.DATATYPE.OBJ;
 
 // unique type
 defender.DATATYPE.UNIQUE;
-```
 
 // date type
 defender.DATATYPE.DATE;
 
 // boolean type
 defender.DATATYPE.BOOL;
+```
 
 **NOTE**: `UNIQUE` data type's value cannot be updated.
 
