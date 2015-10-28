@@ -99,7 +99,7 @@ defender.DATATYPE.MOD;
 
 ```
 
-**NOTE**: `UNIQUE` and `MOD` data type's value cannot be updated.
+**NOTE 1**: `UNIQUE` and `MOD` data type's value cannot be updated.
 
 **NOTE 2**: `MOD` data type property will be updated automatically by updating other properties.
 
