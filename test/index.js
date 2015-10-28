@@ -5,6 +5,7 @@ describe('data-defender', function () {
 	
 	var test;
 	var dataObj;
+	var dateObj;
 
 	it('can create a data schema object', function () {
 		defender.create('test');
@@ -343,7 +344,9 @@ describe('data-defender', function () {
 		newObj.load(data);
 		var json = newObj.toJSON();
 		data.id = newObj.get('id');
-		assert.equal(JSON.stringify(json), JSON.stringify(data));
+		for (var i in json) {
+			assert.equal(JSON.stringify(json[i]), JSON.stringify(data[i]));
+		}
 	});
 
 	it('can load data on creation and return it as a JSON with the same values', function () {
@@ -356,7 +359,9 @@ describe('data-defender', function () {
 		};
 		var moreTest = test.load(data);
 		var json = moreTest.toJSON();
-		assert.equal(JSON.stringify(json), JSON.stringify(data));
+		for (var i in json) {
+			assert.equal(JSON.stringify(json[i]), JSON.stringify(data[i]));
+		}
 	});
 
 	it('can listen for "load" on data object', function (done) {
@@ -424,6 +429,122 @@ describe('data-defender', function () {
 		for (var i in map) {
 			moreTest.update(i, map[i]);
 		}
+	});
+
+	it('can define date type property', function () {
+		dateObj = defender.create('date');
+		dateObj.define('date', {
+			type: defender.DATATYPE.DATE,
+			default: Date.now,
+			max: new Date(Date.now() + 1000),
+			min: new Date('2015-10-01 00:00:00')
+		});
+	});
+
+	it('can .get() a default value of date type property', function () {
+		var now = new Date();
+		var d = dateObj.load();
+		var def = d.get('date');
+		assert.equal(def.getTime(), now.getTime());
+	});
+
+	it('cannot update date property with a value that is greater than max', function () {
+		var now = new Date();
+		var d = dateObj.load();
+		var error = true;
+		try {
+			d.update('date', new Date(Date.now() + 2000));
+		} catch (e) {
+			error = false;
+		}
+		assert.equal(error, false);
+	});
+
+	it('can update date property with a correct value', function () {
+		var now = new Date();
+		var d = dateObj.load();
+		var value = new Date();
+		var error = false;
+		try {
+			d.update('date', value);
+		} catch (e) {
+			error = true;
+		}
+		assert.equal(error, false);
+		assert.equal(value.getTime(), d.get('date').getTime());
+	});
+
+	it('can update date property with a correct value as unixtimestamp', function () {
+		var now = new Date();
+		var d = dateObj.load();
+		var value = new Date();
+		var error = false;
+		try {
+			d.update('date', value.getTime());
+		} catch (e) {
+			error = true;
+		}
+		assert.equal(error, false);
+		assert.equal(value.getTime(), d.get('date').getTime());
+	});
+
+	it('cannot update date property with a value that is smaller than min', function () {
+		var now = new Date();
+		var d = dateObj.load();
+		var error = true;
+		try {
+			d.update('date', new Date('2015-09-01 00:00:00'));
+		} catch (e) {
+			error = false;
+		}
+		assert.equal(error, false);
+	});
+
+	it('cannot update date property with a value that is greater than max in unix timestamp', function () {
+		var now = new Date();
+		var d = dateObj.load();
+		var error = true;
+		try {
+			d.update('date', new Date(Date.now() + 2000).getTime());
+		} catch (e) {
+			error = false;
+		}
+		assert.equal(error, false);
+	});
+
+	it('cannot update date property with a value that is smaller than min in unix timestamp', function () {
+		var now = new Date();
+		var d = dateObj.load();
+		var error = true;
+		try {
+			d.update('date', new Date('2015-09-01 00:00:00'));
+		} catch (e) {
+			error = false;
+		}
+		assert.equal(error, false);
+	});
+
+	it('can define a boolean property, it does NOT allow other data type to be stored and it allows boolean value to update', function () {
+		var boolObj = defender.create('bool');
+		boolObj.define('bool', {
+			type: defender.DATATYPE.BOOL
+		});
+		var bData = boolObj.load();
+		var error = true;
+		try {
+			bData.update('bool', 'bool');
+		} catch (e) {
+			error = false;
+		}
+		try {
+			bData.update('bool', true);
+			error = false;
+		} catch (e) {
+			error = true;
+			console.error(e);
+		}
+		assert.equal(error, false);
+		assert.equal(bData.get('bool'), true);
 	});
 
 });

@@ -36,7 +36,7 @@ Data.prototype.update = function (name, value) {
 
 Data.prototype.get = function (name) {
 	if (this._props.hasOwnProperty(name)) {
-		return this._props[name];
+		return this._struct._typecast(name, this._props[name]);
 	}
 	return null;
 };

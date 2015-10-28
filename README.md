@@ -2,6 +2,10 @@
 
 A node.js module to let you define and enforce data constraints.
 
+The module is database-agnostic.
+
+**NOTE**: This module alone does NOT store data in a database and it does NOT read from any database.
+
 ## API
 
 ### .create(schemaName [string])
@@ -55,8 +59,8 @@ If there is an error, it will throw an exception.
 {
 	type: [enum],
 	default: [*default value],
-	max: [*number],
-	min: [*number] 
+	max: [*number or date],
+	min: [*number or date] 
 }
 ```
 
@@ -85,17 +89,23 @@ defender.DATATYPE.OBJ;
 defender.DATATYPE.UNIQUE;
 ```
 
+// date type
+defender.DATATYPE.DATE;
+
+// boolean type
+defender.DATATYPE.BOOL;
+
 **NOTE**: `UNIQUE` data type's value cannot be updated.
 
 ##### default [*default value]
 
 An optional value to define a default value for the property.
 
-##### max [*number]
+##### max [*number or date]
 
 An optional value to define the maximum value for the property.
 
-##### min [*number]
+##### min [*number or date]
 
 An optional value to define the minimum value for the property.
 

@@ -25,26 +25,55 @@ valMap = {
 };
 */
 Struct.prototype.define = function (name, valMap) {
+	// schema state check
 	if (this._lock) {
 		throw new Error(ERROR.SCHEMA_LOCKED());
 	}
+	// schema constraints check
 	if (this._constraints.hasOwnProperty(name)) {
 		throw new Error(ERROR.DUP_STRUCT_PROP(name));
 	}
 	if (!DATATYPE.isValidType(valMap.type)) {
 		throw new Error(ERROR.INVAL_TYPE(valMap.type));
 	}
-	if (valMap.default !== undefined && !isValid(valMap, valMap.default)) {
-		throw new Error(ERROR.INVAL_DEFAULT(valMap.default));
-	}
 	if (valMap.max && typeof valMap.max !== 'number') {
-		throw new Error(ERROR.INVAL_MAX(valMap.max));
+		if (valMap.max instanceof Date) {
+			valMap.max = valMap.max.getTime();
+		} else {
+			throw new Error(ERROR.INVAL_MAX(valMap.max));
+		}
 	}
 	if (valMap.min && typeof valMap.min !== 'number') {
-		throw new Error(ERROR.INVAL_MIN(valMap.min));
+		if (valMap.min instanceof Date) {
+			valMap.min = valMap.min.getTime();
+		} else {
+			throw new Error(ERROR.INVAL_MIN(valMap.min));
+		}
 	}
-	if (valMap.max && typeof valMap.max === 'number' && typeof valMap.min === 'number' && valMap.max < valMap.min) {
+	var maxIsNum = typeof valMap.max === 'number';
+	var minIsNum = typeof valMap.min === 'number';
+	if (valMap.max && maxIsNum && minIsNum && valMap.max < valMap.min) {
 		throw new Error(ERROR.INVAL_MAX(valMap.max));
+	}
+	if (valMap.max && valMap.type === DATATYPE.DATE) {
+		if (maxIsNum) {
+			// assume it is unix timestamp in milliseconds
+			valMap.max = new Date(valMap.max).getTime();
+		} else if (valMap.max instanceof Date) {
+			valMap.max = valMap.max.getTime();
+		}
+	}
+	if (valMap.min && valMap.type === DATATYPE.DATE) {
+		if (minIsNum) {
+			// assume it is unix timestamp in milliseconds 
+			valMap.min = new Date(valMap.min).getTime();
+		} else if (valMap.min instanceof Date) {
+			valMap.min = valMap.min.getTime();
+		}
+	}
+	// default value check
+	if (valMap.default !== undefined && !isValid(valMap, valMap.default)) {
+		throw new Error(ERROR.INVAL_DEFAULT(valMap.default));
 	}
 	this._constraints[name] = {
 		type: valMap.type,
@@ -65,15 +94,38 @@ Struct.prototype.load = function (values) {
 	var data = new Data(this);
 	
 	if (!values) {
-		// initial load w/o data
 		values = {};
-		for (var i = 0, len = this._uniqueList.length; i < len; i++) {
-			values[this._uniqueList[i]] = uuid.v4();
+		// set default values if provided and handle unique values
+		for (var name in this._constraints) {
+			var item = this._constraints[name];
+			if (item.type !== DATATYPE.UNIQUE) {
+				if (typeof item.default === 'function') {
+					values[name] = item.default();
+					continue;
+				}
+				if (item.default !== null) {
+					values[name] = item.default;
+				}
+			} else {
+				// unique type property
+				values[name] = uuid.v4();
+			}
 		}
 	}
 
 	data.load(values);
 	return data;
+};
+
+Struct.prototype._typecast = function (name, value) {
+	if (!this._constraints.hasOwnProperty(name)) {
+		throw new Error(ERROR.PROP_NOT_DEF(name));
+	}
+	var constraint = this._constraints[name];
+	if (constraint.type === DATATYPE.DATE) {
+		return new Date(value);
+	}
+	return value;
 };
 
 Struct.prototype._update = function (name, value) {
@@ -85,6 +137,9 @@ Struct.prototype._update = function (name, value) {
 	}
 	if (this._constraints[name].type === DATATYPE.UNIQUE) {
 		return { name: name, value: value, unique: true };
+	}
+	if (this._constraints[name].type === DATATYPE.DATE && value instanceof Date) {
+		value = value.getTime();
 	}
 	return { name: name, value: value };
 };
@@ -151,6 +206,25 @@ function isValid(constraints, value) {
 			break;
 		case DATATYPE.UNIQUE:
 			return true;
+		case DATATYPE.DATE:
+			if (!value instanceof Date) {
+				return false;
+			}
+			if (typeof value !== 'function') {
+				if (value.getTime) {
+					len = value.getTime();
+				} else {
+					len = value;
+				}
+			} else {
+				len = value();
+			}
+			break;
+		case DATATYPE.BOOL:
+			if (value !== true && value !== false) {
+				return false;
+			}
+			break;
 		default:
 			throw new Error(ERROR.INVAL_TYPE(constraints.type));
 	}
