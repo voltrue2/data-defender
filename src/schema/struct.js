@@ -28,33 +28,33 @@ valMap = {
 Struct.prototype.define = function (name, valMap) {
 	// schema state check
 	if (this._lock) {
-		throw new Error(ERROR.SCHEMA_LOCKED());
+		return ERROR.SCHEMA_LOCKED(this);
 	}
 	// schema constraints check
 	if (this._constraints.hasOwnProperty(name)) {
-		throw new Error(ERROR.DUP_STRUCT_PROP(name));
+		return ERROR.DUP_STRUCT_PROP(this, name);
 	}
 	if (!DATATYPE.isValidType(valMap.type)) {
-		throw new Error(ERROR.INVAL_TYPE(valMap.type));
+		return ERROR.INVAL_TYPE(this, valMap.type);
 	}
 	if (valMap.max && typeof valMap.max !== 'number') {
 		if (valMap.max instanceof Date) {
 			valMap.max = valMap.max.getTime();
 		} else {
-			throw new Error(ERROR.INVAL_MAX(valMap.max));
+			return ERROR.INVAL_MAX(this, valMap.max);
 		}
 	}
 	if (valMap.min && typeof valMap.min !== 'number') {
 		if (valMap.min instanceof Date) {
 			valMap.min = valMap.min.getTime();
 		} else {
-			throw new Error(ERROR.INVAL_MIN(valMap.min));
+			return ERROR.INVAL_MIN(this, valMap.min);
 		}
 	}
 	var maxIsNum = typeof valMap.max === 'number';
 	var minIsNum = typeof valMap.min === 'number';
 	if (valMap.max && maxIsNum && minIsNum && valMap.max < valMap.min) {
-		throw new Error(ERROR.INVAL_MAX(valMap.max));
+		return ERROR.INVAL_MAX(this, valMap.max);
 	}
 	if (valMap.max && valMap.type === DATATYPE.DATE) {
 		if (maxIsNum) {
@@ -74,11 +74,16 @@ Struct.prototype.define = function (name, valMap) {
 	}
 	// default value check
 	if (valMap.default !== undefined && !isValid(valMap, valMap.default)) {
-		throw new Error(ERROR.INVAL_DEFAULT(valMap.default));
+		return ERROR.INVAL_DEFAULT(this, valMap.default);
+	}
+	// validate schema if given
+	if (valMap.hasOwnProperty('schema') && !valMap.schema instanceof Struct) {
+		return ERROR.INVAL_SCHEMA(this, name);
 	}
 	this._constraints[name] = {
 		type: valMap.type,
 		default: valMap.default || null,
+		schema: valMap.schema || null,
 		max: valMap.max || null,
 		min: valMap.min || null
 	};
@@ -117,13 +122,18 @@ Struct.prototype.load = function (values) {
 		}
 	}
 
-	data.load(values);
+	var err = data.load(values);
+
+	if (err instanceof Error) {
+		return err;
+	}
+
 	return data;
 };
 
 Struct.prototype._typecast = function (name, value) {
 	if (!this._constraints.hasOwnProperty(name)) {
-		throw new Error(ERROR.PROP_NOT_DEF(name));
+		return ERROR.PROP_NOT_DEF(this, name);
 	}
 	var constraint = this._constraints[name];
 	if (constraint.type === DATATYPE.DATE || constraint.type === DATATYPE.MOD) {
@@ -134,10 +144,10 @@ Struct.prototype._typecast = function (name, value) {
 
 Struct.prototype._update = function (name, value) {
 	if (!this._constraints.hasOwnProperty(name)) {
-		throw new Error(ERROR.PROP_NOT_DEF(name));
+		return ERROR.PROP_NOT_DEF(this, name);
 	}
 	if (!isValid(this._constraints[name], value)) {
-		throw new Error(ERROR.INVAL_VAL(value));
+		return ERROR.INVAL_VAL(this, value);
 	}
 	if (this._constraints[name].type === DATATYPE.UNIQUE) {
 		return { name: name, value: value, noChange: true };
@@ -238,9 +248,10 @@ function isValid(constraints, value) {
 			}
 			break;
 		default:
-			throw new Error(ERROR.INVAL_TYPE(constraints.type));
+			//return ERROR.INVAL_TYPE(this, constraints.type);
+			return false;
 	}
-	
+
 	// validation of maximum and minimum value allowed
 	if (constraints.hasOwnProperty('max') && constraints.max !== null && len > constraints.max) {
 		return false;

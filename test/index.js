@@ -14,6 +14,19 @@ describe('data-defender', function () {
 	it('can .get() a data schema that has already been created', function () {
 		test = defender.get('test');
 	});
+
+	it('can handle error w/o throwing and it can catch or detect the error from the return value', function (done) {
+		var count = 0;
+		test.once('error', function (error) {
+			done();
+		});
+		var d = test.load({ boo: 100 });
+		assert.equal((d instanceof Error), true);
+	});
+
+	it('can enable exception throwing', function () {
+		defender.useExceptionError();
+	});
 	
 	it('cannot .get() a data schema that does not exist', function () {
 		var error = true;

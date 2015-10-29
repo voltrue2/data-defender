@@ -7,9 +7,13 @@ var data = {};
 
 exports.DATATYPE = require('../../lib/datatype');
 
+exports.useExceptionError = function () {
+	ERROR.useExceptionError();
+};
+
 exports.create = function (name) {
 	if (data.hasOwnProperty(name)) {
-		throw new Error(ERROR.DUP_SCHEMA_CREATE(name));
+		return ERROR.DUP_SCHEMA_CREATE(this, name);
 	}
 	var struct = new Struct(name); 
 	data[name] = struct;
@@ -18,7 +22,7 @@ exports.create = function (name) {
 
 exports.get = function (name) {
 	if (!data.hasOwnProperty(name)) {
-		throw new Error(ERROR.SCHEMA_NOT_FOUND(name));
+		return ERROR.SCHEMA_NOT_FOUND(this, name);
 	}
 	return data[name];
 };

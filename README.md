@@ -6,13 +6,21 @@ The module is database-agnostic.
 
 **NOTE**: This module alone does NOT store data in a database and it does NOT read from any database.
 
+## How To Install
+
+`npm install data-defencer`
+
 ## API
+
+### .useExceptionError()
+
+When invoked, the module will return an error for an error.
 
 ### .create(schemaName [string])
 
 Returns a schema object to allow you to define constraints on each data property.
 
-It will throw an error if trying to create a schema that has already been created.
+It will return an error if trying to create a schema that has already been created.
 
 **Example**:
 
@@ -35,7 +43,7 @@ example.define('name', {
 
 Returns an already defined schema object.
 
-It will throw an exception if trying to get a schema that has not been created.
+It will return an error if trying to get a schema that has not been created.
 
 **Example**:
 
@@ -51,7 +59,7 @@ This object allows you to define constraints on each data property.
 
 #### .define(PropertyName [string], constraints [object])
 
-If there is an error, it will throw an exception.
+If there is an error, it will return an error.
 
 **constraints**:
 
@@ -123,7 +131,7 @@ Locks the definition of schema. If you call `.define()` after invoking this func
 
 It loads the data and returns a data object.
 
-If the given values do not meet the constraints defined by the schema, it will throw an exception.
+If the given values do not meet the constraints defined by the schema, it will return an error.
 
 **NOTE**: If you define a property that is `UNIQUE` and pass nothing to `.load()`, it will auto-generate a unique ID as a string.
 

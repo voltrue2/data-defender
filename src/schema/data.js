@@ -15,14 +15,20 @@ util.inherits(Data, EventEmitter);
 Data.prototype.load = function (data) {
 	if (data) {
 		for (var name in data) {
-			this._update(name, data[name]);
+			var err = this._update(name, data[name]);
+			if (err instanceof Error) {
+				return err;
+			}
 		}
 		this.emit('load', data);
 	}
 };
 
 Data.prototype.update = function (name, value) {
-	this._update(name, value);
+	var err = this._update(name, value);
+	if (err instanceof Error) {
+		return err;
+	}
 	var list = this._struct._getModtimeList();
 	for (var i = 0, len = list.length; i < len; i++) {
 		this._props[list[i]] = Date.now();
@@ -33,10 +39,13 @@ Data.prototype.update = function (name, value) {
 
 Data.prototype._update = function (name, value) {
 	var data = this._struct._update(name, value);
+	if (data instanceof Error) {
+		return data;
+	}
 	var hasProp = this._props.hasOwnProperty(name);
 
 	if (data.noChange && hasProp && this._props[name] !== value) {
-		throw new Error(ERROR.VAL_CHANGE_NOT_ALLOWED(name));
+		return ERROR.VAL_CHANGE_NOT_ALLOWED(this, name);
 	}
 
 	// auto-convert
