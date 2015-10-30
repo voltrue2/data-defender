@@ -7,8 +7,8 @@ var data = {};
 
 exports.DATATYPE = require('../../lib/datatype');
 
-exports.useExceptionError = function () {
-	ERROR.useExceptionError();
+exports.returnError = function () {
+	ERROR.returnError();
 };
 
 exports.create = function (name) {

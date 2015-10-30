@@ -14,30 +14,6 @@ describe('data-defender', function () {
 	it('can .get() a data schema that has already been created', function () {
 		test = defender.get('test');
 	});
-
-	it('can handle error w/o throwing and it can catch and/or detect the error from the return value', function () {
-		var d = test.load({ boo: 100 });
-		assert.equal((d instanceof Error), true);
-	});
-
-	it('can define a property w/ value validation function and it can fail to update and it can successfully update', function () {
-		var boo = defender.create('boo');
-		boo.define('name', {
-			type: defender.DATATYPE.STR,
-			validation: function (value) {
-				return value === 'good name';
-			}
-		});
-		var data = boo.load();
-		var err = data.update('name', 'bad name');
-		assert.equal(err instanceof Error, true);
-		var success = data.update('name', 'good name');
-		assert.equal(success instanceof Error, false);
-	});
-
-	it('can enable exception throwing', function () {
-		defender.useExceptionError();
-	});
 	
 	it('cannot .get() a data schema that does not exist', function () {
 		var error = true;
@@ -666,6 +642,30 @@ describe('data-defender', function () {
 		assert.equal(then, d.get('modtime').getTime());
 		d.update('text', 'HIJK');
 		assert.notEqual(then, d.get('modtime').getTime());
+	});
+
+	it('can disable exception throwing', function () {
+		defender.returnError();
+	});
+
+	it('can define a property w/ value validation function and it can fail to update and it can successfully update', function () {
+		var boo = defender.create('boo');
+		boo.define('name', {
+			type: defender.DATATYPE.STR,
+			validation: function (value) {
+				return value === 'good name';
+			}
+		});
+		var data = boo.load();
+		var err = data.update('name', 'bad name');
+		assert.equal(err instanceof Error, true);
+		var success = data.update('name', 'good name');
+		assert.equal(success instanceof Error, false);
+	});
+
+	it('can handle error w/o throwing and it can catch and/or detect the error from the return value', function () {
+		var d = test.load({ boo: 100 });
+		assert.equal((d instanceof Error), true);
 	});
 
 });

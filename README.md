@@ -12,11 +12,9 @@ The module is database-agnostic.
 
 ## API
 
-### .useExceptionError()
+### .returnError()
 
-Enables throwing errors instead of returning errors.
-
-**NOTE**: The module returns errors instead of throwing exception by default.
+Enable the module to return errors instead of throwing exceptions.
 
 ### .create(schemaName [string])
 
