@@ -15,13 +15,24 @@ describe('data-defender', function () {
 		test = defender.get('test');
 	});
 
-	it('can handle error w/o throwing and it can catch or detect the error from the return value', function (done) {
-		var count = 0;
-		test.once('error', function (error) {
-			done();
-		});
+	it('can handle error w/o throwing and it can catch and/or detect the error from the return value', function () {
 		var d = test.load({ boo: 100 });
 		assert.equal((d instanceof Error), true);
+	});
+
+	it('can define a property w/ value validation function and it can fail to update and it can successfully update', function () {
+		var boo = defender.create('boo');
+		boo.define('name', {
+			type: defender.DATATYPE.STR,
+			validation: function (value) {
+				return value === 'good name';
+			}
+		});
+		var data = boo.load();
+		var err = data.update('name', 'bad name');
+		assert.equal(err instanceof Error, true);
+		var success = data.update('name', 'good name');
+		assert.equal(success instanceof Error, false);
 	});
 
 	it('can enable exception throwing', function () {

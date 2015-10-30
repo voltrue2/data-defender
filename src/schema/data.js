@@ -26,9 +26,11 @@ Data.prototype.load = function (data) {
 
 Data.prototype.update = function (name, value) {
 	var err = this._update(name, value);
+
 	if (err instanceof Error) {
 		return err;
 	}
+	
 	var list = this._struct._getModtimeList();
 	for (var i = 0, len = list.length; i < len; i++) {
 		this._props[list[i]] = Date.now();
@@ -39,9 +41,11 @@ Data.prototype.update = function (name, value) {
 
 Data.prototype._update = function (name, value) {
 	var data = this._struct._update(name, value);
+
 	if (data instanceof Error) {
 		return data;
-	}
+	}	
+
 	var hasProp = this._props.hasOwnProperty(name);
 
 	if (data.noChange && hasProp && this._props[name] !== value) {

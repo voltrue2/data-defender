@@ -80,10 +80,15 @@ Struct.prototype.define = function (name, valMap) {
 	if (valMap.hasOwnProperty('schema') && !valMap.schema instanceof Struct) {
 		return ERROR.INVAL_SCHEMA(this, name);
 	}
+	// validation validation function
+	if (valMap.hasOwnProperty('validation') && typeof valMap.validation !== 'function') {
+		return ERROR.INVAL_VALIDATION(this, name);
+	}
 	this._constraints[name] = {
 		type: valMap.type,
 		default: valMap.default || null,
 		schema: valMap.schema || null,
+		validation: valMap.validation || null,
 		max: valMap.max || null,
 		min: valMap.min || null
 	};
@@ -123,11 +128,9 @@ Struct.prototype.load = function (values) {
 	}
 
 	var err = data.load(values);
-
 	if (err instanceof Error) {
 		return err;
 	}
-
 	return data;
 };
 
@@ -257,6 +260,10 @@ function isValid(constraints, value) {
 		return false;
 	}
 	if (constraints.hasOwnProperty('min') && constraints.min !== null && len < constraints.min) {
+		return false;
+	}
+
+	if (constraints.hasOwnProperty('validation') && constraints.validation !== null && !constraints.validation(value)) {
 		return false;
 	}
 	

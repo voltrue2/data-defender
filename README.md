@@ -14,7 +14,9 @@ The module is database-agnostic.
 
 ### .useExceptionError()
 
-When invoked, the module will return an error for an error.
+Enables throwing errors instead of returning errors.
+
+**NOTE**: The module returns errors instead of throwing exception by default.
 
 ### .create(schemaName [string])
 
