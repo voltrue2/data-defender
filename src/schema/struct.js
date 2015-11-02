@@ -104,6 +104,10 @@ Struct.prototype.lockSchema = function () {
 	this._lock = true;
 };
 
+Struct.prototype.getPropertyNames = function () {
+	return Object.keys(this._constraints);
+};
+
 Struct.prototype.load = function (values) {
 	var data = new Data(this);
 	

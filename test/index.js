@@ -174,6 +174,25 @@ describe('data-defender', function () {
 		assert.equal(error, false);
 	});
 
+	it('can get a list of defined property names', function () {
+		var list = [
+			'id',
+			'name',
+			'number',
+			'list',
+			'map',
+			'struct',
+			'extra'
+		];
+		var names = test.getPropertyNames();
+		var matched = 0;
+		for (var i = 0, len = list.length; i < len; i++) {
+			assert.notEqual(names.indexOf(list[i]), -1);
+			matched += 1;
+		}
+		assert.equal(matched, names.length);
+	});
+
 	it('can update a property with valid value (string)', function () {
 		dataObj.update('name', 'Test 101');
 	});
