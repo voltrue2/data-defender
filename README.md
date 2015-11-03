@@ -4,6 +4,8 @@ A node.js module to let you define and enforce data constraints.
 
 The module is database-agnostic.
 
+The module is also ideal for evaludating incoming request paramters for servers such as HTTP.
+
 **NOTE**: This module alone does NOT store data in a database and it does NOT read from any database.
 
 ## How To Install
@@ -34,6 +36,7 @@ example.define('id', {
 example.define('name', {
 	type: defender.DATATYPE.STR,
 	default: 'No Name',
+	validation: myValidationFunction,
 	max: 30,
 	min: 4
 });
@@ -67,6 +70,7 @@ If there is an error, it will return an error.
 {
 	type: [enum],
 	default: [*default value],
+	validation: [*function],
 	max: [*number or date],
 	min: [*number or date] 
 }
@@ -75,6 +79,8 @@ If there is an error, it will return an error.
 ##### type [enum]
 
 Defines the data type of the property.
+
+This is required.
 
 The possible values are:
 
@@ -114,6 +120,32 @@ defender.DATATYPE.MOD;
 ##### default [*default value]
 
 An optional value to define a default value for the property.
+
+##### validation [*function]
+
+An optional function used to validated the value for the property.
+
+The validation function is given the value as an argument.
+
+**NOTE**: Validation function can only performce synchronous operations.
+
+**Example**:
+
+```javascript
+var defender = require('data-defender');
+var validate = function (value) {
+	// only odd numbers
+	return value % 2 !== 0;
+};
+var example = defender.create('example');
+example.define('oddNum', {
+	type: defender.DATATYPE.NUM,
+	validation: validate,
+	default: 1,
+	min: 1,
+	max: 99
+});
+```
 
 ##### max [*number or date]
 
