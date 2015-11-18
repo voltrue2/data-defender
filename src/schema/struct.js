@@ -182,6 +182,10 @@ Struct.prototype._toJSON = function (props) {
 	var parser = function (obj) {
 		var tmp = (Array.isArray(obj)) ? [] : {};
 		for (var i in obj) {
+			if (obj[i] === null) {
+				tmp[i] = null;
+				continue;
+			}
 			if (typeof obj[i] === 'object') {
 				if (obj[i] instanceof Struct) {
 					return obj[i].toJSON();
