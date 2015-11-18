@@ -551,7 +551,8 @@ describe('data-defender', function () {
 	it('can define a boolean property, it does NOT allow other data type to be stored and it allows boolean value to update', function () {
 		var boolObj = defender.create('bool');
 		boolObj.define('bool', {
-			type: defender.DATATYPE.BOOL
+			type: defender.DATATYPE.BOOL,
+			default: false
 		});
 		var bData = boolObj.load();
 		var error = true;
@@ -582,11 +583,13 @@ describe('data-defender', function () {
 		testTwo.define('text', {
 			type: defender.DATATYPE.STR,
 			max: 10,
-			min: 0
+			min: 0,
+			default: null
 		});
 		testTwo.define('map', {
 			type: defender.DATATYPE.OBJ,
-			min: 2
+			min: 2,
+			default: null
 		});
 		testTwo.define('modtime', {
 			type: defender.DATATYPE.MOD,
@@ -600,12 +603,14 @@ describe('data-defender', function () {
 		testTwoMap.define('name', {
 			type: defender.DATATYPE.STR,
 			max: 4,
-			min: 1
+			min: 1,
+			default: 'N/A'
 		});
 		testTwoMap.define('list', {
 			type: defender.DATATYPE.ARR,
 			max: 4,
-			min: 1
+			min: 1,
+			default: [1]
 		});
 	});
 
@@ -678,7 +683,8 @@ describe('data-defender', function () {
 			type: defender.DATATYPE.STR,
 			validation: function (value) {
 				return value === 'good name';
-			}
+			},
+			default: 'good name'
 		});
 		var data = boo.load();
 		var err = data.update('name', 'bad name');

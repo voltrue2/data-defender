@@ -87,11 +87,11 @@ Struct.prototype.define = function (name, valMap) {
 	}
 	this._constraints[name] = {
 		type: valMap.type,
-		default: valMap.default || null,
+		default: valMap.default,
 		schema: valMap.schema || null,
 		validation: valMap.validation || null,
-		max: valMap.max || null,
-		min: valMap.min || null
+		max: valMap.max,
+		min: valMap.min
 	};
 	if (valMap.type === DATATYPE.UNIQUE) {
 		this._uniqueList.push(name);
