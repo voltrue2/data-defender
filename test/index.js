@@ -65,7 +65,7 @@ describe('data-defender', function () {
 		});
 		test.define('struct', {
 			type: defender.DATATYPE.OBJ,
-			default: null
+			default: {}
 		});
 		dataObj = test.load();
 	});

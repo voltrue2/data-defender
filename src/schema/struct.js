@@ -114,22 +114,26 @@ Struct.prototype.load = function (values) {
 	
 	if (!values) {
 		values = {};
-		// set default values if provided and handle unique values
-		for (var name in this._constraints) {
-			var item = this._constraints[name];
-			if (item.type !== DATATYPE.UNIQUE) {
-				if (item.default === undefined) {
-					return ERROR.NO_VAL(this, name);
-				}
-				if (typeof item.default === 'function') {
-					values[name] = item.default();
-					continue;
-				}
-				values[name] = item.default;
-			} else {
-				// unique type property
-				values[name] = uuid.v4();
+	}
+
+	// set default values if provided and handle unique values
+	for (var name in this._constraints) {
+		if (values.hasOwnProperty(name)) {
+			continue;
+		}
+		var item = this._constraints[name];
+		if (item.type !== DATATYPE.UNIQUE) {
+			if (item.default === undefined) {
+				return ERROR.NO_VAL(this, name);
 			}
+			if (typeof item.default === 'function') {
+				values[name] = item.default();
+				continue;
+			}
+			values[name] = item.default;
+		} else {
+			// unique type property
+			values[name] = uuid.v4();
 		}
 	}
 
