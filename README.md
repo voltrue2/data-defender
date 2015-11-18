@@ -121,6 +121,8 @@ defender.DATATYPE.MOD;
 
 An optional value to define a default value for the property.
 
+**NOTE**: By setting this value to `null`, you can allow `null` value for this property.
+
 ##### validation [*function]
 
 An optional function used to validated the value for the property.

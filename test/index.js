@@ -42,25 +42,30 @@ describe('data-defender', function () {
 		test.define('name', {
 			type: defender.DATATYPE.STR,
 			max: 10,
-			min: 2
+			min: 2,
+			default: null
 		});
 		test.define('number', {
 			type: defender.DATATYPE.NUM,
 			max: 100,
-			min: 1
+			min: 1,
+			default: null
 		});
 		test.define('list', {
 			type: defender.DATATYPE.ARR,
+			default: null,
 			max: 3,
 			min: 1
 		});
 		test.define('map', {
 			type: defender.DATATYPE.OBJ,
+			default: null,
 			max: 2,
 			min: 1
 		});
 		test.define('struct', {
-			type: defender.DATATYPE.OBJ
+			type: defender.DATATYPE.OBJ,
+			default: null
 		});
 		dataObj = test.load();
 	});

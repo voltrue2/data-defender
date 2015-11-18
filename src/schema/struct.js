@@ -21,8 +21,9 @@ util.inherits(Struct, EventEmitter);
 valMap = {
 	type: <enum> // DATATYPE...
 	*default: <default value>,
-	*max: <number>
-	*min: <number>
+	*max: <number>,
+	*min: <number>,
+	*validation: <function>
 };
 */
 Struct.prototype.define = function (name, valMap) {
@@ -74,7 +75,7 @@ Struct.prototype.define = function (name, valMap) {
 	}
 	// default value check
 	if (valMap.default !== undefined && !isValid(valMap, valMap.default)) {
-		return ERROR.INVAL_DEFAULT(this, valMap.default);
+		return ERROR.INVAL_DEFAULT(this, name, valMap.default);
 	}
 	// validate schema if given
 	if (valMap.hasOwnProperty('schema') && !valMap.schema instanceof Struct) {
@@ -117,13 +118,14 @@ Struct.prototype.load = function (values) {
 		for (var name in this._constraints) {
 			var item = this._constraints[name];
 			if (item.type !== DATATYPE.UNIQUE) {
+				if (item.default === undefined) {
+					return ERROR.NO_VAL(this, name);
+				}
 				if (typeof item.default === 'function') {
 					values[name] = item.default();
 					continue;
 				}
-				if (item.default !== null) {
-					values[name] = item.default;
-				}
+				values[name] = item.default;
 			} else {
 				// unique type property
 				values[name] = uuid.v4();
@@ -195,9 +197,16 @@ module.exports = Struct;
 function isValid(constraints, value) {
 	var len;
 
-	// if null is not allowd
-	if (constraints.default !== null && value === null) {
-		return false;
+	// null is allowed
+	if (value === null) {
+		// null is allowed
+		if (constraints.default === null) {
+			return true;
+		}
+		// null is not allowed
+		if (constraints.default !== null) {
+			return false;
+		}
 	}
 	
 	// data type validation
