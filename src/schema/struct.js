@@ -188,7 +188,7 @@ Struct.prototype._toJSON = function (props) {
 			}
 			if (typeof obj[i] === 'object') {
 				if (obj[i] instanceof Struct) {
-					return obj[i].toJSON();
+					return obj[i]._toJSON();
 				}
 				tmp[i] = parser(obj[i]);
 				continue;
