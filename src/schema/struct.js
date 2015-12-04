@@ -13,6 +13,7 @@ function Struct() {
 	this._uniqueList = [];
 	this._modtimeList = [];
 	this._lock = false;
+	this._struct = true;
 }
 
 util.inherits(Struct, EventEmitter);
@@ -145,6 +146,10 @@ Struct.prototype.load = function (values) {
 };
 
 Struct.prototype._typecast = function (name, value) {
+	if (value._struct) {
+		// instance of Struct
+		return value;
+	}
 	if (!this._constraints.hasOwnProperty(name)) {
 		return ERROR.PROP_NOT_DEF(this, name);
 	}
